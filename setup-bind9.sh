@@ -144,7 +144,8 @@ options {
 
     // ── Forwarders ───────────────────────────────────────────────────────────
     forwarders { ${UPSTREAM_DNS}; };
-    forward only;
+    forward first;
+    empty-zones-enable yes;
 
     // ── DNSSEC ───────────────────────────────────────────────────────────────
     dnssec-validation auto;
@@ -171,6 +172,7 @@ zone "${DOMAIN}" {
     allow-update { key "${KEY_NAME}"; };
     allow-query  { any; };
     allow-transfer { none; };
+    forwarders {};
 };
 EOF
 
