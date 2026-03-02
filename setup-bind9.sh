@@ -139,8 +139,8 @@ options {
 
     // ── Recursive resolver ───────────────────────────────────────────────────
     recursion yes;
-    allow-recursion { 127.0.0.1; ::1; ${SUBNET}; };
-    allow-query    { 127.0.0.1; ::1; ${SUBNET}; };
+    allow-recursion { any };
+    allow-query     { any };
 
     // ── Forwarders ───────────────────────────────────────────────────────────
     forwarders { ${UPSTREAM_DNS}; };
@@ -151,8 +151,8 @@ options {
     dnssec-validation auto;
 
     // ── Listen addresses ─────────────────────────────────────────────────────
-    listen-on { 127.0.0.1; ${LISTEN_IP}; };
-    listen-on-v6 { ::1; };
+    listen-on { any; };
+    listen-on-v6 { any; };
 
     auth-nxdomain no;
 };
