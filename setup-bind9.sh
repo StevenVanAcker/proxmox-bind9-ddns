@@ -139,8 +139,8 @@ options {
 
     // ── Recursive resolver ───────────────────────────────────────────────────
     recursion yes;
-    allow-recursion { any };
-    allow-query     { any };
+    allow-recursion { any; };
+    allow-query     { any; };
 
     // ── Forwarders ───────────────────────────────────────────────────────────
     forwarders { ${UPSTREAM_DNS}; };
