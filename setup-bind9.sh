@@ -172,7 +172,6 @@ zone "${DOMAIN}" {
     allow-update { key "${KEY_NAME}"; };
     allow-query  { any; };
     allow-transfer { none; };
-    forwarders {};
 };
 EOF
 
