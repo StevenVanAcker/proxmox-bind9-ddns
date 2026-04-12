@@ -16,6 +16,7 @@
 #   -u, --upstream DNS_IP     Upstream forwarder IP        (default: 8.8.8.8)
 #   -k, --key-secret SECRET   TSIG key secret (base64)     (default: auto-generated)
 #   -K, --key-name NAME       TSIG key name                (default: ddns-key)
+#   -f, --no-forward          Disable forwarders (use root hints instead)
 #   -y, --yes                 Skip confirmation prompt
 #   -h, --help                Show this help message
 #
@@ -33,6 +34,7 @@ KEY_SECRET=""        # empty = auto-generate
 LISTEN_IP=""         # empty = auto-detect
 SUBNET=""            # empty = derive from LISTEN_IP
 SKIP_CONFIRM=false
+NO_FORWARD=false
 
 # ── Colours ──────────────────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
@@ -58,6 +60,7 @@ while [[ $# -gt 0 ]]; do
         -u|--upstream)    UPSTREAM_DNS="$2"; shift 2 ;;
         -k|--key-secret)  KEY_SECRET="$2";   shift 2 ;;
         -K|--key-name)    KEY_NAME="$2";     shift 2 ;;
+        -f|--no-forward)  NO_FORWARD=true;   shift ;;
         -y|--yes)         SKIP_CONFIRM=true; shift ;;
         -h|--help)        usage ;;
         *) error "Unknown option: $1. Use --help for usage." ;;
@@ -98,7 +101,11 @@ echo -e "${BOLD}Configuration summary:${RESET}"
 echo -e "  Domain (zone):   ${BOLD}$DOMAIN${RESET}"
 echo -e "  Listen IP:       ${BOLD}$LISTEN_IP${RESET}"
 echo -e "  Allow subnet:    ${BOLD}$SUBNET${RESET}"
-echo -e "  Upstream DNS:    ${BOLD}$UPSTREAM_DNS${RESET}"
+if [[ "$NO_FORWARD" == true ]]; then
+    echo -e "  Upstream DNS:    ${BOLD}(none — root hints)${RESET}"
+else
+    echo -e "  Upstream DNS:    ${BOLD}$UPSTREAM_DNS${RESET}"
+fi
 echo -e "  TSIG key name:   ${BOLD}$KEY_NAME${RESET}"
 echo -e "  TSIG secret:     ${BOLD}$KEY_SECRET${RESET}"
 echo
@@ -143,9 +150,14 @@ options {
     allow-query     { any; };
 
     // ── Forwarders ───────────────────────────────────────────────────────────
-    forwarders { ${UPSTREAM_DNS}; };
-    forward first;
-    empty-zones-enable yes;
+$(if [[ "$NO_FORWARD" == true ]]; then
+    echo "    forwarders {};"
+    echo "    forward only;"
+else
+    echo "    forwarders { ${UPSTREAM_DNS}; };"
+    echo "    forward first;"
+    echo "    empty-zones-enable yes;"
+fi)
 
     // ── DNSSEC ───────────────────────────────────────────────────────────────
     dnssec-validation auto;
